@@ -1,226 +1,496 @@
 """
-LINE sticker generator using Pillow.
+LINE sticker generator — chibi salaryman character.
+
+Based on a real person's features:
+  - Dark hair (medium length, slightly tousled)
+  - Dark navy suit + white dress shirt
+  - Expressive face, signature open-hand shrug pose
 
 LINE sticker specs:
-  Main image: 370 x 320 px, PNG
+  Main image: 370 x 320 px, PNG, ≤ 1 MB
   Tab icon:    96 x  74 px, PNG
 """
 
-import math
 import os
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw
 
 STICKER_W, STICKER_H = 370, 320
 TAB_W, TAB_H = 96, 74
 OUT_DIR = "stickers"
 
-YELLOW = (255, 220, 50, 255)
-OUTLINE = (60, 40, 0, 255)
-WHITE = (255, 255, 255, 255)
-BLACK = (30, 30, 30, 255)
-RED = (220, 50, 50, 255)
-PINK = (255, 150, 170, 255)
-BLUE = (80, 130, 220, 255)
-TRANSPARENT = (0, 0, 0, 0)
+# ── palette ────────────────────────────────────────────────────────────────────
+TRANSPARENT   = (0,   0,   0,   0)
+SKIN          = (240, 195, 155, 255)
+SKIN_SHADOW   = (210, 160, 120, 255)
+HAIR          = (45,  30,  20,  255)
+HAIR_HI       = (80,  55,  35,  255)
+SUIT          = (50,  55,  85,  255)
+SUIT_SHADOW   = (30,  35,  60,  255)
+SHIRT         = (245, 245, 250, 255)
+SHIRT_SHADOW  = (200, 205, 215, 255)
+OUTLINE       = (30,  25,  20,  255)
+WHITE         = (255, 255, 255, 255)
+BLACK         = (20,  20,  20,  255)
+RED           = (220, 60,  60,  255)
+PINK          = (255, 160, 180, 255)
+BLUE          = (80,  130, 220, 255)
+YELLOW        = (255, 220, 50,  255)
+SWEAT         = (150, 200, 240, 255)
 
-OUTLINE_W = 6
+OL = OUTLINE   # shorthand
+OW = 4         # default outline width
 
 
-def new_canvas() -> tuple[Image.Image, ImageDraw.Draw]:
+# ── low-level helpers ──────────────────────────────────────────────────────────
+
+def new_canvas():
     img = Image.new("RGBA", (STICKER_W, STICKER_H), TRANSPARENT)
     return img, ImageDraw.Draw(img)
 
 
-def ellipse_outline(draw: ImageDraw.Draw, box, fill, outline, width):
-    draw.ellipse(box, fill=outline)
-    inner = [
-        box[0] + width,
-        box[1] + width,
-        box[2] - width,
-        box[3] - width,
-    ]
-    draw.ellipse(inner, fill=fill)
-
-
-def face_base(draw: ImageDraw.Draw, cx: int, cy: int, rx: int, ry: int):
-    """Draw the yellow face oval with outline."""
+def ell(draw, cx, cy, rx, ry, fill, outline=OL, width=OW):
     box = [cx - rx, cy - ry, cx + rx, cy + ry]
-    ellipse_outline(draw, box, YELLOW, OUTLINE, OUTLINE_W)
+    draw.ellipse(box, fill=outline)
+    draw.ellipse([cx - rx + width, cy - ry + width,
+                  cx + rx - width, cy + ry - width], fill=fill)
 
 
-def eye(draw: ImageDraw.Draw, cx: int, cy: int, r: int = 14):
-    """Simple round eye."""
-    box = [cx - r, cy - r, cx + r, cy + r]
-    ellipse_outline(draw, box, BLACK, WHITE, 3)
+def rect(draw, x0, y0, x1, y1, fill, outline=OL, width=OW):
+    draw.rectangle([x0 - width, y0 - width, x1 + width, y1 + width], fill=outline)
+    draw.rectangle([x0, y0, x1, y1], fill=fill)
 
 
-def eye_closed(draw: ImageDraw.Draw, cx: int, cy: int, r: int = 14):
-    """Closed (happy squint) eye — arc line."""
-    draw.arc([cx - r, cy - r // 2, cx + r, cy + r // 2], 200, 340, fill=OUTLINE, width=5)
+# ── face components ────────────────────────────────────────────────────────────
+
+def draw_face(draw, cx, cy, rx=72, ry=68):
+    """Round chibi face."""
+    ell(draw, cx, cy, rx, ry, SKIN)
+    # subtle jaw shadow
+    draw.ellipse([cx - rx + 10, cy + ry // 2, cx + rx - 10, cy + ry + 6],
+                 fill=SKIN_SHADOW)
 
 
-def mouth_smile(draw: ImageDraw.Draw, cx: int, cy: int, w: int = 60, h: int = 30):
-    draw.arc([cx - w, cy - h, cx + w, cy + h], 10, 170, fill=OUTLINE, width=6)
+def draw_hair(draw, cx, cy, rx=72, ry=68):
+    """Dark hair covering the top of the head."""
+    # main hair cap
+    draw.ellipse([cx - rx - 2, cy - ry - 2, cx + rx + 2, cy + 8],
+                 fill=OL)
+    draw.ellipse([cx - rx + 4, cy - ry + 4, cx + rx - 4, cy + 10],
+                 fill=HAIR)
+    # tousled tufts on top
+    tufts = [(-28, -ry - 14, 18, 22), (0, -ry - 18, 18, 22),
+             (26, -ry - 12, 16, 20)]
+    for dx, dy, tw, th in tufts:
+        draw.ellipse([cx + dx - tw // 2 - 2, cy + dy - th // 2 - 2,
+                      cx + dx + tw // 2 + 2, cy + dy + th // 2 + 2],
+                     fill=OL)
+        draw.ellipse([cx + dx - tw // 2, cy + dy - th // 2,
+                      cx + dx + tw // 2, cy + dy + th // 2],
+                     fill=HAIR)
+    # hair highlight
+    draw.ellipse([cx - 20, cy - ry + 6, cx + 8, cy - ry + 18],
+                 fill=HAIR_HI)
 
 
-def mouth_sad(draw: ImageDraw.Draw, cx: int, cy: int, w: int = 60, h: int = 30):
-    draw.arc([cx - w, cy, cx + w, cy + h * 2], 190, 350, fill=OUTLINE, width=6)
+def draw_eyes_normal(draw, cx, cy):
+    ex_l, ex_r, ey = cx - 28, cx + 28, cy - 8
+    for ex in (ex_l, ex_r):
+        ell(draw, ex, ey, 13, 13, BLACK, WHITE, 3)
+        draw.ellipse([ex - 5, ey - 5, ex + 5, ey + 5], fill=(60, 40, 20, 255))
+        draw.ellipse([ex - 4, ey - 4, ex + 4, ey + 4], fill=BLACK)
+        draw.ellipse([ex + 2, ey - 6, ex + 7, ey - 1], fill=WHITE)
 
 
-def mouth_open(draw: ImageDraw.Draw, cx: int, cy: int, w: int = 50, h: int = 40):
-    draw.ellipse([cx - w, cy - h // 2, cx + w, cy + h], fill=OUTLINE)
-    draw.ellipse([cx - w + 8, cy, cx + w - 8, cy + h - 6], fill=RED)
+def draw_eyes_closed_happy(draw, cx, cy):
+    ey = cy - 8
+    for ex in (cx - 28, cx + 28):
+        draw.arc([ex - 13, ey - 6, ex + 13, ey + 6],
+                 200, 340, fill=OL, width=5)
 
 
-def cheek(draw: ImageDraw.Draw, cx: int, cy: int):
-    draw.ellipse([cx - 22, cy - 10, cx + 22, cy + 10], fill=(*PINK[:3], 160))
+def draw_eyes_wide(draw, cx, cy):
+    ey = cy - 8
+    for ex in (cx - 28, cx + 28):
+        ell(draw, ex, ey, 15, 16, BLACK, WHITE, 3)
+        draw.ellipse([ex - 5, ey - 5, ex + 5, ey + 5], fill=BLACK)
+        draw.ellipse([ex + 2, ey - 7, ex + 8, ey - 1], fill=WHITE)
 
 
-# ── individual stickers ────────────────────────────────────────────────────────
+def draw_eyes_teary(draw, cx, cy):
+    ey = cy - 8
+    for ex in (cx - 28, cx + 28):
+        ell(draw, ex, ey, 13, 15, BLACK, WHITE, 3)
+        draw.ellipse([ex - 5, ey - 5, ex + 5, ey + 5], fill=BLACK)
+        draw.ellipse([ex + 2, ey - 6, ex + 7, ey - 1], fill=WHITE)
+        # lower lid shimmer
+        draw.arc([ex - 13, ey + 2, ex + 13, ey + 18], 0, 180,
+                 fill=BLUE, width=3)
 
-def sticker_happy() -> Image.Image:
+
+def draw_eyes_angry(draw, cx, cy):
+    ey = cy - 8
+    for ex in (cx - 28, cx + 28):
+        ell(draw, ex, ey, 13, 12, BLACK, WHITE, 3)
+        draw.ellipse([ex - 5, ey - 5, ex + 5, ey + 5], fill=BLACK)
+    # angry brows
+    draw.line([cx - 44, cy - 28, cx - 18, cy - 20], fill=OL, width=5)
+    draw.line([cx + 18, cy - 20, cx + 44, cy - 28], fill=OL, width=5)
+
+
+def draw_eyebrows(draw, cx, cy):
+    draw.line([cx - 44, cy - 26, cx - 16, cy - 22], fill=OL, width=4)
+    draw.line([cx + 16, cy - 22, cx + 44, cy - 26], fill=OL, width=4)
+
+
+def draw_mouth_smile(draw, cx, cy, w=40, h=22):
+    draw.arc([cx - w, cy + 8, cx + w, cy + 8 + h * 2],
+             10, 170, fill=OL, width=5)
+
+
+def draw_mouth_open_laugh(draw, cx, cy):
+    draw.ellipse([cx - 30, cy + 5, cx + 30, cy + 32], fill=OL)
+    draw.ellipse([cx - 24, cy + 9, cx + 24, cy + 30], fill=RED)
+    draw.ellipse([cx - 16, cy + 20, cx + 16, cy + 30], fill=(200, 80, 80, 255))
+
+
+def draw_mouth_sad(draw, cx, cy):
+    draw.arc([cx - 35, cy + 18, cx + 35, cy + 50],
+             195, 345, fill=OL, width=5)
+
+
+def draw_mouth_flat(draw, cx, cy):
+    draw.line([cx - 25, cy + 18, cx + 25, cy + 18], fill=OL, width=5)
+
+
+def draw_mouth_shout(draw, cx, cy):
+    draw.ellipse([cx - 22, cy + 5, cx + 22, cy + 35], fill=OL)
+    draw.ellipse([cx - 17, cy + 9, cx + 17, cy + 33], fill=RED)
+
+
+def draw_sweat(draw, cx, cy):
+    """Single sweat drop on forehead."""
+    sx, sy = cx + 58, cy - 30
+    draw.polygon([(sx, sy - 16), (sx - 8, sy + 8), (sx + 8, sy + 8)],
+                 fill=SWEAT)
+    draw.ellipse([sx - 8, sy + 4, sx + 8, sy + 18], fill=SWEAT)
+
+
+def draw_cheeks(draw, cx, cy):
+    for dx in (-55, 55):
+        draw.ellipse([cx + dx - 18, cy + 5, cx + dx + 18, cy + 20],
+                     fill=(*PINK[:3], 150))
+
+
+# ── body components ────────────────────────────────────────────────────────────
+
+def draw_body_suit(draw, cx, by):
+    """Simple chibi suit torso."""
+    # jacket
+    draw.polygon([
+        (cx - 55, by),
+        (cx + 55, by),
+        (cx + 70, by + 90),
+        (cx - 70, by + 90),
+    ], fill=SUIT_SHADOW)
+    draw.polygon([
+        (cx - 50, by),
+        (cx + 50, by),
+        (cx + 62, by + 85),
+        (cx - 62, by + 85),
+    ], fill=SUIT)
+    # shirt / tie gap
+    draw.polygon([
+        (cx - 14, by),
+        (cx + 14, by),
+        (cx + 10, by + 70),
+        (cx - 10, by + 70),
+    ], fill=SHIRT)
+    # lapels
+    draw.polygon([(cx, by + 10), (cx - 14, by), (cx - 38, by + 30)],
+                 fill=SUIT_SHADOW)
+    draw.polygon([(cx, by + 10), (cx + 14, by), (cx + 38, by + 30)],
+                 fill=SUIT_SHADOW)
+    # collar
+    draw.polygon([(cx - 14, by), (cx, by + 12), (cx - 5, by)],
+                 fill=SHIRT_SHADOW)
+    draw.polygon([(cx + 14, by), (cx, by + 12), (cx + 5, by)],
+                 fill=SHIRT_SHADOW)
+
+
+def draw_arms_down(draw, cx, by):
+    """Arms hanging at sides."""
+    for side in (-1, 1):
+        x0 = cx + side * 58
+        draw.ellipse([x0 - 16, by + 5, x0 + 16, by + 75],
+                     fill=SUIT, outline=OL, width=3)
+        # hand
+        ell(draw, x0, by + 80, 14, 12, SKIN)
+
+
+def draw_arms_shrug(draw, cx, by):
+    """Signature open-hands shrug pose."""
+    for side in (-1, 1):
+        # upper arm going outward and slightly up
+        ax = cx + side * 75
+        ay = by + 20
+        draw.polygon([
+            (cx + side * 55, by + 5),
+            (cx + side * 55, by + 35),
+            (ax + side * 10, ay + 45),
+            (ax + side * 20, ay + 30),
+        ], fill=SUIT, outline=OL)
+        # forearm rotated outward / palm up
+        fx = ax + side * 22
+        fy = ay + 48
+        draw.polygon([
+            (ax + side * 5,  ay + 30),
+            (ax + side * 20, ay + 30),
+            (fx + side * 12, fy + 10),
+            (fx - side * 2,  fy + 10),
+        ], fill=SUIT, outline=OL)
+        # open palm
+        palm_cx = fx + side * 6
+        palm_cy = fy + 20
+        ell(draw, palm_cx, palm_cy, 18, 14, SKIN)
+        # fingers spread
+        for i, (fdx, fdy) in enumerate([
+            (-10, -14), (-3, -17), (5, -16), (13, -12), (18, -4)
+        ]):
+            ell(draw, palm_cx + fdx * side, palm_cy + fdy,
+                5, 9, SKIN, OL, 2)
+
+
+def draw_arms_thumbsup(draw, cx, by):
+    """Left arm down, right arm raised with thumb up."""
+    # left arm down
+    x0 = cx - 62
+    draw.ellipse([x0 - 14, by + 5, x0 + 14, by + 72],
+                 fill=SUIT, outline=OL, width=3)
+    ell(draw, x0, by + 77, 13, 11, SKIN)
+    # right arm raised
+    draw.polygon([
+        (cx + 55, by + 5),
+        (cx + 72, by + 5),
+        (cx + 88, by - 30),
+        (cx + 70, by - 35),
+    ], fill=SUIT, outline=OL)
+    # fist
+    ell(draw, cx + 80, by - 45, 16, 14, SKIN)
+    # thumb up
+    draw.polygon([
+        (cx + 74, by - 45),
+        (cx + 70, by - 72),
+        (cx + 82, by - 72),
+        (cx + 86, by - 45),
+    ], fill=SKIN, outline=OL)
+    ell(draw, cx + 78, by - 74, 10, 9, SKIN)
+
+
+def draw_arms_wave(draw, cx, by):
+    """One arm raised and waving."""
+    # left arm down
+    x0 = cx - 62
+    draw.ellipse([x0 - 14, by + 5, x0 + 14, by + 72],
+                 fill=SUIT, outline=OL, width=3)
+    ell(draw, x0, by + 77, 13, 11, SKIN)
+    # right arm up + open hand
+    draw.polygon([
+        (cx + 55, by + 5),
+        (cx + 70, by + 5),
+        (cx + 100, by - 40),
+        (cx + 85, by - 48),
+    ], fill=SUIT, outline=OL)
+    ell(draw, cx + 94, by - 56, 17, 15, SKIN)
+    for i, (fdx, fdy) in enumerate([(-10, -16), (-3, -19), (6, -18),
+                                     (14, -12), (18, -3)]):
+        ell(draw, cx + 94 + fdx, by - 56 + fdy, 5, 9, SKIN, OL, 2)
+
+
+def draw_arms_facepalm(draw, cx, by):
+    """Both hands raised to face."""
+    for side in (-1, 1):
+        ax = cx + side * 28
+        draw.polygon([
+            (cx + side * 52, by + 10),
+            (cx + side * 62, by + 10),
+            (ax + side * 10, by - 20),
+            (ax - side * 2,  by - 20),
+        ], fill=SUIT, outline=OL)
+        ell(draw, ax + side * 4, by - 28, 17, 14, SKIN)
+
+
+def draw_arms_crossed(draw, cx, by):
+    """Arms folded across chest."""
+    draw.polygon([
+        (cx - 62, by + 10), (cx - 48, by + 10),
+        (cx + 30, by + 45), (cx + 22, by + 55),
+    ], fill=SUIT_SHADOW, outline=OL)
+    draw.polygon([
+        (cx + 62, by + 10), (cx + 48, by + 10),
+        (cx - 30, by + 45), (cx - 22, by + 55),
+    ], fill=SUIT, outline=OL)
+
+
+def draw_arms_point(draw, cx, by):
+    """Right arm pointing forward / at viewer."""
+    x0 = cx - 62
+    draw.ellipse([x0 - 14, by + 5, x0 + 14, by + 72],
+                 fill=SUIT, outline=OL, width=3)
+    ell(draw, x0, by + 77, 13, 11, SKIN)
+    # pointing arm
+    draw.polygon([
+        (cx + 55, by + 15), (cx + 68, by + 8),
+        (cx + 95, by + 30), (cx + 82, by + 40),
+    ], fill=SUIT, outline=OL)
+    ell(draw, cx + 98, by + 35, 14, 12, SKIN)
+    # index finger extended
+    draw.polygon([
+        (cx + 102, by + 26),
+        (cx + 120, by + 14),
+        (cx + 125, by + 22),
+        (cx + 108, by + 34),
+    ], fill=SKIN, outline=OL)
+    ell(draw, cx + 122, by + 16, 7, 7, SKIN)
+
+
+# ── full character builder ─────────────────────────────────────────────────────
+
+def draw_character(draw, cx, cy,
+                   eyes_fn=None, mouth_fn=None, arms_fn=None,
+                   face_fn=None,
+                   extra_fn=None):
+    face_rx, face_ry = 72, 68
+    body_top = cy + face_ry - 5
+
+    if arms_fn:
+        arms_fn(draw, cx, body_top)
+
+    draw_body_suit(draw, cx, body_top)
+    draw_face(draw, cx, cy, face_rx, face_ry)
+    draw_hair(draw, cx, cy, face_rx, face_ry)
+
+    if face_fn:
+        face_fn(draw, cx, cy)
+    else:
+        draw_eyebrows(draw, cx, cy)
+        (eyes_fn or draw_eyes_normal)(draw, cx, cy)
+        (mouth_fn or draw_mouth_smile)(draw, cx, cy)
+
+    if extra_fn:
+        extra_fn(draw, cx, cy)
+
+
+# ── 8 stickers ─────────────────────────────────────────────────────────────────
+
+def sticker_shrug() -> Image.Image:
+    """Signature shrug / 'dunno' pose."""
     img, draw = new_canvas()
-    cx, cy = 185, 160
-    face_base(draw, cx, cy, 120, 110)
-    eye_closed(draw, cx - 45, cy - 20)
-    eye_closed(draw, cx + 45, cy - 20)
-    mouth_smile(draw, cx, cy + 20, 65, 35)
-    cheek(draw, cx - 75, cy + 10)
-    cheek(draw, cx + 75, cy + 10)
+    cx, cy = 185, 148
+    draw_character(draw, cx, cy,
+                   eyes_fn=draw_eyes_normal,
+                   mouth_fn=draw_mouth_flat,
+                   arms_fn=draw_arms_shrug)
+    # question marks
+    for qx, qy in ((60, 50), (315, 50)):
+        draw.text((qx, qy), "?", fill=(*YELLOW[:3], 220))
     return img
 
 
-def sticker_sad() -> Image.Image:
+def sticker_laugh() -> Image.Image:
+    """Big happy laugh."""
     img, draw = new_canvas()
-    cx, cy = 185, 160
-    face_base(draw, cx, cy, 120, 110)
-    # droopy eyes
-    draw.arc([cx - 60, cy - 40, cx - 25, cy - 15], 20, 160, fill=OUTLINE, width=5)
-    draw.arc([cx + 25, cy - 40, cx + 60, cy - 15], 20, 160, fill=OUTLINE, width=5)
-    mouth_sad(draw, cx, cy + 30, 50, 25)
-    # tear
-    for i in range(4):
-        draw.ellipse([cx - 55 + i, cy + 5 + i * 10, cx - 47 + i, cy + 14 + i * 10], fill=BLUE)
-    return img
-
-
-def sticker_love() -> Image.Image:
-    img, draw = new_canvas()
-    cx, cy = 185, 160
-    face_base(draw, cx, cy, 120, 110)
-
-    def heart(x, y, size=22):
-        # crude heart via two circles + polygon
-        r = size // 2
-        draw.ellipse([x - r, y - r, x + r - 1, y + r - 1], fill=RED)
-        draw.ellipse([x, y - r, x + size, y + r - 1], fill=RED)
-        draw.polygon([(x - r, y + r // 2), (x + size // 2, y + size), (x + size + r, y + r // 2)], fill=RED)
-
-    heart(cx - 62, cy - 38)
-    heart(cx + 22, cy - 38)
-    mouth_smile(draw, cx, cy + 15, 65, 35)
-    cheek(draw, cx - 75, cy + 10)
-    cheek(draw, cx + 75, cy + 10)
-    return img
-
-
-def sticker_angry() -> Image.Image:
-    img, draw = new_canvas()
-    cx, cy = 185, 160
-    face_base(draw, cx, cy, 120, 110)
-    # angled brows
-    draw.line([cx - 60, cy - 50, cx - 25, cy - 35], fill=OUTLINE, width=7)
-    draw.line([cx + 25, cy - 35, cx + 60, cy - 50], fill=OUTLINE, width=7)
-    eye(draw, cx - 42, cy - 15, 16)
-    eye(draw, cx + 42, cy - 15, 16)
-    # small angry mouth
-    draw.arc([cx - 40, cy + 30, cx + 40, cy + 60], 200, 340, fill=OUTLINE, width=6)
-    # vein symbol
-    draw.line([cx + 70, cy - 70, cx + 85, cy - 80], fill=RED, width=4)
-    draw.line([cx + 85, cy - 80, cx + 95, cy - 65], fill=RED, width=4)
-    return img
-
-
-def sticker_sleeping() -> Image.Image:
-    img, draw = new_canvas()
-    cx, cy = 185, 175
-    face_base(draw, cx, cy, 120, 100)
-    eye_closed(draw, cx - 45, cy - 20)
-    eye_closed(draw, cx + 45, cy - 20)
-    # sleeping mouth (small line)
-    draw.arc([cx - 25, cy + 20, cx + 25, cy + 45], 10, 170, fill=OUTLINE, width=5)
-    # zzz
-    for i, (zx, zy, sz) in enumerate([(cx + 90, cy - 60, 20), (cx + 108, cy - 85, 26), (cx + 128, cy - 115, 32)]):
-        draw.text((zx, zy), "z", fill=BLUE, font=ImageFont.load_default(size=sz))
-    return img
-
-
-def sticker_surprised() -> Image.Image:
-    img, draw = new_canvas()
-    cx, cy = 185, 160
-    face_base(draw, cx, cy, 120, 110)
-    eye(draw, cx - 45, cy - 20, 20)
-    eye(draw, cx + 45, cy - 20, 20)
-    # highlight dots
-    for ex in (cx - 45, cx + 45):
-        draw.ellipse([ex - 8, cy - 35, ex - 1, cy - 28], fill=WHITE)
-    mouth_open(draw, cx, cy + 30, 35, 35)
+    cx, cy = 185, 148
+    draw_character(draw, cx, cy,
+                   eyes_fn=draw_eyes_closed_happy,
+                   mouth_fn=draw_mouth_open_laugh,
+                   arms_fn=draw_arms_down)
+    draw_cheeks(draw, cx, cy)
     return img
 
 
 def sticker_thumbsup() -> Image.Image:
+    """Thumbs-up / good."""
     img, draw = new_canvas()
-    # face slightly left
-    cx, cy = 150, 160
-    face_base(draw, cx, cy, 105, 100)
-    eye_closed(draw, cx - 38, cy - 15)
-    eye_closed(draw, cx + 38, cy - 15)
-    mouth_smile(draw, cx, cy + 15, 55, 28)
-    cheek(draw, cx - 65, cy + 5)
-    cheek(draw, cx + 65, cy + 5)
-    # thumb
-    thumb_cx = 290
-    draw.rectangle([thumb_cx - 18, cy - 20, thumb_cx + 18, cy + 60], fill=YELLOW, outline=OUTLINE, width=5)
-    draw.ellipse([thumb_cx - 22, cy - 60, thumb_cx + 22, cy - 10], fill=YELLOW, outline=OUTLINE, width=5)
-    draw.rectangle([thumb_cx - 28, cy + 20, thumb_cx + 28, cy + 70], fill=YELLOW, outline=OUTLINE, width=5)
+    cx, cy = 180, 148
+    draw_character(draw, cx, cy,
+                   eyes_fn=draw_eyes_closed_happy,
+                   mouth_fn=draw_mouth_smile,
+                   arms_fn=draw_arms_thumbsup)
+    draw_cheeks(draw, cx, cy)
     return img
 
 
 def sticker_wave() -> Image.Image:
+    """Waving hello/goodbye."""
     img, draw = new_canvas()
-    cx, cy = 160, 170
-    face_base(draw, cx, cy, 100, 95)
-    eye_closed(draw, cx - 35, cy - 15)
-    eye_closed(draw, cx + 35, cy - 15)
-    mouth_smile(draw, cx, cy + 10, 55, 30)
-    cheek(draw, cx - 65, cy)
-    cheek(draw, cx + 65, cy)
-    # waving hand (arc-based)
-    hx, hy = 285, 120
-    draw.ellipse([hx - 38, hy - 55, hx + 38, hy + 55], fill=YELLOW, outline=OUTLINE, width=5)
-    # fingers as small ovals
-    for angle_deg, (fx, fy) in zip(
-        [-60, -30, 0, 30, 60],
-        [(hx - 30, hy - 65), (hx - 10, hy - 75), (hx + 12, hy - 72), (hx + 30, hy - 62), (hx + 42, hy - 45)],
-    ):
-        draw.ellipse([fx - 10, fy - 18, fx + 10, fy + 5], fill=YELLOW, outline=OUTLINE, width=4)
+    cx, cy = 175, 148
+    draw_character(draw, cx, cy,
+                   eyes_fn=draw_eyes_closed_happy,
+                   mouth_fn=draw_mouth_smile,
+                   arms_fn=draw_arms_wave)
+    draw_cheeks(draw, cx, cy)
+    return img
+
+
+def sticker_surprised() -> Image.Image:
+    """Wide-eyed surprise."""
+    img, draw = new_canvas()
+    cx, cy = 185, 148
+    draw_character(draw, cx, cy,
+                   eyes_fn=draw_eyes_wide,
+                   mouth_fn=draw_mouth_shout,
+                   arms_fn=draw_arms_down)
+    draw_sweat(draw, cx, cy)
+    return img
+
+
+def sticker_troubled() -> Image.Image:
+    """Troubled / facepalm."""
+    img, draw = new_canvas()
+    cx, cy = 185, 148
+    draw_character(draw, cx, cy,
+                   eyes_fn=draw_eyes_teary,
+                   mouth_fn=draw_mouth_sad,
+                   arms_fn=draw_arms_facepalm)
+    draw_sweat(draw, cx, cy)
+    return img
+
+
+def sticker_serious() -> Image.Image:
+    """Serious / arms crossed."""
+    img, draw = new_canvas()
+    cx, cy = 185, 148
+    draw_character(draw, cx, cy,
+                   eyes_fn=draw_eyes_normal,
+                   mouth_fn=draw_mouth_flat,
+                   arms_fn=draw_arms_crossed)
+    return img
+
+
+def sticker_point() -> Image.Image:
+    """Pointing — 'you!' or 'go!'"""
+    img, draw = new_canvas()
+    cx, cy = 178, 148
+    draw_character(draw, cx, cy,
+                   eyes_fn=draw_eyes_wide,
+                   mouth_fn=draw_mouth_shout,
+                   arms_fn=draw_arms_point)
     return img
 
 
 STICKERS: list[tuple[str, callable]] = [
-    ("01_happy", sticker_happy),
-    ("02_sad", sticker_sad),
-    ("03_love", sticker_love),
-    ("04_angry", sticker_angry),
-    ("05_sleeping", sticker_sleeping),
-    ("06_surprised", sticker_surprised),
-    ("07_thumbsup", sticker_thumbsup),
-    ("08_wave", sticker_wave),
+    ("01_shrug",     sticker_shrug),
+    ("02_laugh",     sticker_laugh),
+    ("03_thumbsup",  sticker_thumbsup),
+    ("04_wave",      sticker_wave),
+    ("05_surprised", sticker_surprised),
+    ("06_troubled",  sticker_troubled),
+    ("07_serious",   sticker_serious),
+    ("08_point",     sticker_point),
 ]
 
 
 def make_tab_icon(first_sticker: Image.Image) -> Image.Image:
-    """Scale the first sticker down to the tab icon size."""
     return first_sticker.resize((TAB_W, TAB_H), Image.LANCZOS)
 
 
@@ -240,7 +510,6 @@ def main():
     tab_path = os.path.join(OUT_DIR, "tab_icon.png")
     tab.save(tab_path, "PNG")
     print(f"  saved {tab_path}")
-
     print(f"\nDone! {len(STICKERS)} stickers + 1 tab icon -> ./{OUT_DIR}/")
 
 
