@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Honest【オネスト】プレゼン資料</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif;
+    background: #1a1a2e;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+  }
+
+  .controls {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 20px;
+    align-items: center;
+  }
+
+  button {
+    background: #0f3460;
+    color: white;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  button:hover { background: #16213e; }
+  button:disabled { opacity: 0.4; cursor: default; }
+
+  #slide-counter {
+    color: #a0aec0;
+    font-size: 15px;
+    min-width: 80px;
+    text-align: center;
+  }
+
+  .slide-wrapper {
+    width: 900px;
+    height: 506px;
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  }
+
+  .slide {
+    display: none;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0; left: 0;
+    padding: 50px 60px;
+  }
+
+  .slide.active { display: flex; flex-direction: column; }
+
+  /* ===== SLIDE THEMES ===== */
+
+  /* タイトル */
+  .slide-title {
+    background: linear-gradient(135deg, #0f3460 0%, #16213e 60%, #1a1a2e 100%);
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+  }
+
+  /* 標準 */
+  .slide-standard {
+    background: #ffffff;
+  }
+
+  /* アクセント */
+  .slide-accent {
+    background: linear-gradient(135deg, #e8f4f8 0%, #f0f9ff 100%);
+  }
+
+  /* ダーク */
+  .slide-dark {
+    background: linear-gradient(135deg, #0f3460 0%, #16213e 100%);
+  }
+
+  /* 締め */
+  .slide-closing {
+    background: linear-gradient(135deg, #1a1a2e 0%, #0f3460 50%, #16213e 100%);
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+  }
+
+  /* ===== TYPOGRAPHY ===== */
+
+  .label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #4299e1;
+    margin-bottom: 12px;
+  }
+
+  .title-main {
+    font-size: 42px;
+    font-weight: 900;
+    color: #ffffff;
+    line-height: 1.2;
+    margin-bottom: 10px;
+  }
+
+  .title-sub {
+    font-size: 20px;
+    color: #90cdf4;
+    margin-bottom: 8px;
+  }
+
+  .title-name {
+    font-size: 24px;
+    color: #e2e8f0;
+    margin-top: 20px;
+  }
+
+  .slide-heading {
+    font-size: 26px;
+    font-weight: 800;
+    color: #1a365d;
+    padding-bottom: 12px;
+    border-bottom: 3px solid #3182ce;
+    margin-bottom: 28px;
+  }
+
+  .slide-heading-white {
+    font-size: 26px;
+    font-weight: 800;
+    color: #ffffff;
+    padding-bottom: 12px;
+    border-bottom: 3px solid #63b3ed;
+    margin-bottom: 28px;
+  }
+
+  /* ===== TIMELINE ===== */
+
+  .timeline { display: flex; flex-direction: column; gap: 10px; }
+
+  .timeline-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .timeline-year {
+    min-width: 52px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #3182ce;
+    padding-top: 2px;
+  }
+
+  .timeline-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #3182ce;
+    margin-top: 5px;
+    flex-shrink: 0;
+  }
+
+  .timeline-text {
+    font-size: 15px;
+    color: #2d3748;
+    line-height: 1.5;
+  }
+
+  /* ===== CARDS ===== */
+
+  .card-grid {
+    display: grid;
+    gap: 16px;
+  }
+
+  .card-grid-2 { grid-template-columns: 1fr 1fr; }
+  .card-grid-3 { grid-template-columns: 1fr 1fr 1fr; }
+
+  .card {
+    background: #ffffff;
+    border-radius: 10px;
+    padding: 20px;
+    border-left: 4px solid #3182ce;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  }
+
+  .card-dark {
+    background: rgba(255,255,255,0.08);
+    border-radius: 10px;
+    padding: 20px;
+    border-left: 4px solid #63b3ed;
+  }
+
+  .card-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #3182ce;
+    margin-bottom: 8px;
+  }
+
+  .card-title-white {
+    font-size: 14px;
+    font-weight: 700;
+    color: #90cdf4;
+    margin-bottom: 8px;
+  }
+
+  .card-body {
+    font-size: 13px;
+    color: #4a5568;
+    line-height: 1.7;
+  }
+
+  .card-body-white {
+    font-size: 13px;
+    color: #e2e8f0;
+    line-height: 1.7;
+  }
+
+  /* ===== FEATURE LIST ===== */
+
+  .feature-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+
+  .feature-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 16px;
+    color: #2d3748;
+  }
+
+  .feature-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: #3182ce;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    flex-shrink: 0;
+  }
+
+  /* ===== HIGHLIGHT BOX ===== */
+
+  .highlight-box {
+    background: linear-gradient(135deg, #ebf8ff, #bee3f8);
+    border-radius: 10px;
+    padding: 16px 20px;
+    border: 1px solid #90cdf4;
+    margin-top: 16px;
+  }
+
+  .highlight-box-text {
+    font-size: 14px;
+    color: #2a4a6b;
+    line-height: 1.7;
+  }
+
+  /* ===== SERVICE TABLE ===== */
+
+  .service-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    flex: 1;
+  }
+
+  .service-item {
+    background: white;
+    border-radius: 8px;
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.07);
+  }
+
+  .service-icon {
+    font-size: 22px;
+  }
+
+  .service-text {
+    font-size: 15px;
+    color: #2d3748;
+    font-weight: 600;
+  }
+
+  /* ===== ACHIEVEMENT ===== */
+
+  .achievement-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
+  .achievement-card {
+    background: white;
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  }
+
+  .achievement-number {
+    font-size: 36px;
+    font-weight: 900;
+    color: #3182ce;
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+
+  .achievement-label {
+    font-size: 12px;
+    color: #718096;
+  }
+
+  /* ===== CLOSING ===== */
+
+  .closing-main {
+    font-size: 36px;
+    font-weight: 900;
+    color: #ffffff;
+    margin-bottom: 12px;
+  }
+
+  .closing-sub {
+    font-size: 18px;
+    color: #90cdf4;
+    margin-bottom: 30px;
+  }
+
+  .contact-box {
+    background: rgba(255,255,255,0.1);
+    border-radius: 10px;
+    padding: 20px 40px;
+    display: inline-block;
+  }
+
+  .contact-text {
+    font-size: 15px;
+    color: #e2e8f0;
+    line-height: 2;
+  }
+
+  /* ===== QUESTION SLIDE ===== */
+
+  .question-big {
+    font-size: 40px;
+    font-weight: 900;
+    color: #1a365d;
+    line-height: 1.4;
+    text-align: center;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .question-note {
+    font-size: 15px;
+    color: #718096;
+    text-align: center;
+    margin-top: 20px;
+  }
+
+  /* ===== SLIDE NUMBER ===== */
+
+  .slide-num {
+    position: absolute;
+    bottom: 14px;
+    right: 20px;
+    font-size: 11px;
+    opacity: 0.4;
+  }
+
+  .slide-num-light { color: #2d3748; }
+  .slide-num-dark  { color: #ffffff; }
+
+  /* ===== BRAND BAR ===== */
+
+  .brand-bar {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 5px;
+    background: linear-gradient(90deg, #3182ce, #63b3ed);
+  }
+
+  /* ===== TWO COLUMN ===== */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    flex: 1;
+  }
+
+  .col-left, .col-right {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+</style>
+</head>
+<body>
+
+<div class="controls">
+  <button id="btn-prev" onclick="changeSlide(-1)" disabled>◀ 前へ</button>
+  <span id="slide-counter">1 / 10</span>
+  <button id="btn-next" onclick="changeSlide(1)">次へ ▶</button>
+</div>
+
+<div class="slide-wrapper">
+
+  <!-- ===== SLIDE 1: タイトル ===== -->
+  <div class="slide slide-title active">
+    <div class="label">異業種交流会 プレゼンテーション</div>
+    <div class="title-main">カーフィルム・コーティング</div>
+    <div class="title-main" style="color:#63b3ed;">Honest【オネスト】</div>
+    <div class="title-sub" style="margin-top:16px;">あなたの愛車を、もっと快適に。もっと美しく。</div>
+    <div class="title-name">酒井 修二</div>
+    <div style="font-size:13px;color:#718096;margin-top:8px;">東大阪市 ｜ 自動車カーフィルム・コーティング専門店</div>
+    <div class="slide-num slide-num-dark">1 / 10</div>
+  </div>
+
+  <!-- ===== SLIDE 2: 自己紹介 ===== -->
+  <div class="slide slide-standard">
+    <div class="brand-bar"></div>
+    <div class="slide-heading">自己紹介</div>
+    <div class="two-col">
+      <div class="col-left">
+        <div style="font-size:20px;font-weight:800;color:#1a365d;margin-bottom:4px;">酒井 修二</div>
+        <div style="font-size:13px;color:#718096;margin-bottom:16px;">1971年9月生まれ｜東大阪市在住</div>
+        <div class="timeline">
+          <div class="timeline-item">
+            <div class="timeline-year">1992</div>
+            <div class="timeline-dot"></div>
+            <div class="timeline-text">ガソリンスタンドで自動車業界へ</div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-year">1996</div>
+            <div class="timeline-dot"></div>
+            <div class="timeline-text">俱楽部WALK 開業（従業員として）</div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-year">2001</div>
+            <div class="timeline-dot"></div>
+            <div class="timeline-text"><strong>オネストとして独立開業</strong></div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-year">2011</div>
+            <div class="timeline-dot"></div>
+            <div class="timeline-text">守口門真青年会議所 卒業</div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-year">2015</div>
+            <div class="timeline-dot"></div>
+            <div class="timeline-text">合同会社ワークス 開業（共同経営）</div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-year">2018</div>
+            <div class="timeline-dot"></div>
+            <div class="timeline-text">BNI シャングリラチャプター 入会</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-right" style="justify-content:center;">
+        <div class="highlight-box">
+          <div style="font-size:13px;font-weight:700;color:#3182ce;margin-bottom:8px;">モットー</div>
+          <div class="highlight-box-text">
+            「決意した事を実行しないと<br>心に負担が残っていく」<br><br>
+            お客様の「困った」を<br>一緒に解決することを大切に、<br>東大阪で30年以上活動しています。
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-num slide-num-light">2 / 10</div>
+  </div>
+
+  <!-- ===== SLIDE 3: 事業紹介 ===== -->
+  <div class="slide slide-standard">
+    <div class="brand-bar"></div>
+    <div class="slide-heading">Honest【オネスト】とは</div>
+    <div style="margin-bottom:16px;font-size:15px;color:#4a5568;">東大阪を拠点に、カーフィルム・コーティングを専門とする自動車サービス店です。</div>
+    <div class="card-grid card-grid-2" style="flex:1;">
+      <div class="card">
+        <div class="card-title">🎯 専門特化</div>
+        <div class="card-body">
+          カーフィルムとコーティングに特化。職人として一台一台丁寧に施工します。
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">🤝 自動車業界の分業体制</div>
+        <div class="card-body">
+          販売・整備・鈑金など各分野のプロが連携。オネストはフィルム・コーティングのスペシャリスト。
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">📍 東大阪密着30年以上</div>
+        <div class="card-body">
+          地域に根ざした信頼関係を大切に、口コミや紹介で多くのお客様にご利用いただいています。
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">💡 幅広いネットワーク</div>
+        <div class="card-body">
+          BNI・青年会議所など経営者ネットワークを活かし、最適な専門家をご紹介できます。
+        </div>
+      </div>
+    </div>
+    <div class="slide-num slide-num-light">3 / 10</div>
+  </div>
+
+  <!-- ===== SLIDE 4: 問題提起 ===== -->
+  <div class="slide slide-accent">
+    <div class="brand-bar"></div>
+    <div class="question-big">
+      <div>
+        車に乗っていて<br>
+        <span style="color:#3182ce;">「暑いなぁ〜〜💦」</span><br>
+        と感じることはありませんか？
+      </div>
+    </div>
+    <div class="question-note">顔や腕に当たるジリジリとした日差し…その悩み、カーフィルムで解決できます。</div>
+    <div class="slide-num slide-num-light">4 / 10</div>
+  </div>
+
+  <!-- ===== SLIDE 5: カーフィルムの効果 ===== -->
+  <div class="slide slide-standard">
+    <div class="brand-bar"></div>
+    <div class="slide-heading">カーフィルムでできること</div>
+    <div class="two-col">
+      <div>
+        <ul class="feature-list">
+          <li class="feature-item">
+            <div class="feature-icon">🌞</div>
+            <span>日射・遮熱効果で車内温度を下げる</span>
+          </li>
+          <li class="feature-item">
+            <div class="feature-icon">🕶️</div>
+            <span>外からの視界を遮りプライバシーを守る</span>
+          </li>
+          <li class="feature-item">
+            <div class="feature-icon">🛡️</div>
+            <span>紫外線（UV）から人・内装を保護する</span>
+          </li>
+          <li class="feature-item">
+            <div class="feature-icon">💥</div>
+            <span>ガラス破損時の飛散を防止する</span>
+          </li>
+          <li class="feature-item">
+            <div class="feature-icon">✨</div>
+            <span>ドレスアップ・見た目をスタイリッシュに</span>
+          </li>
+        </ul>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        <div class="highlight-box">
+          <div style="font-size:13px;font-weight:700;color:#3182ce;margin-bottom:6px;">施工の流れ</div>
+          <div class="highlight-box-text">
+            ① お客様ヒアリング・目的確認<br>
+            ② フィルム種類の選定・ご提案<br>
+            ③ 丁寧な貼り付け施工<br>
+            ④ 内装保護・仕上げ確認
+          </div>
+        </div>
+        <div class="card" style="border-left-color:#e53e3e;">
+          <div class="card-title" style="color:#e53e3e;">注目！ 最新トレンド</div>
+          <div class="card-body">流行りの青みがかったフィルムなど、デザイン性の高い施工も対応可能です。</div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-num slide-num-light">5 / 10</div>
+  </div>
+
+  <!-- ===== SLIDE 6: コーティング ===== -->
+  <div class="slide slide-standard">
+    <div class="brand-bar"></div>
+    <div class="slide-heading">カーコーティングの魅力</div>
+    <div style="font-size:15px;color:#4a5568;margin-bottom:20px;">「いつも綺麗な車に乗っていたい♬」そのご要望にお応えします。</div>
+    <div class="card-grid card-grid-3" style="margin-bottom:16px;">
+      <div class="card" style="text-align:center;border-left:none;border-top:4px solid #3182ce;">
+        <div style="font-size:28px;margin-bottom:8px;">🚿</div>
+        <div class="card-title" style="text-align:center;">洗車が楽になる</div>
+        <div class="card-body" style="text-align:center;">汚れがつきにくく、水洗いだけで綺麗に</div>
+      </div>
+      <div class="card" style="text-align:center;border-left:none;border-top:4px solid #3182ce;">
+        <div style="font-size:28px;margin-bottom:8px;">💎</div>
+        <div class="card-title" style="text-align:center;">輝きが長続き</div>
+        <div class="card-body" style="text-align:center;">深みのある光沢で新車のような美しさを維持</div>
+      </div>
+      <div class="card" style="text-align:center;border-left:none;border-top:4px solid #3182ce;">
+        <div style="font-size:28px;margin-bottom:8px;">🛡️</div>
+        <div class="card-title" style="text-align:center;">ボディを保護</div>
+        <div class="card-body" style="text-align:center;">紫外線・酸性雨・飛び石から塗装を守る</div>
+      </div>
+    </div>
+    <div class="highlight-box">
+      <div class="highlight-box-text" style="text-align:center;">
+        <strong>コーティングはお車の「投資」です。</strong><br>
+        査定額アップにもつながり、長期的にお得なカーケアです。
+      </div>
+    </div>
+    <div class="slide-num slide-num-light">6 / 10</div>
+  </div>
+
+  <!-- ===== SLIDE 7: サービス一覧 ===== -->
+  <div class="slide slide-accent">
+    <div class="brand-bar"></div>
+    <div class="slide-heading">サービス一覧</div>
+    <div class="service-grid">
+      <div class="service-item">
+        <div class="service-icon">🎞️</div>
+        <div class="service-text">カーフィルム施工</div>
+      </div>
+      <div class="service-item">
+        <div class="service-icon">✨</div>
+        <div class="service-text">カーコーティング</div>
+      </div>
+      <div class="service-item">
+        <div class="service-icon">🔍</div>
+        <div class="service-text">車検・一般整備</div>
+      </div>
+      <div class="service-item">
+        <div class="service-icon">🛒</div>
+        <div class="service-text">車の販売・買取</div>
+      </div>
+      <div class="service-item">
+        <div class="service-icon">🔧</div>
+        <div class="service-text">パーツ交換作業</div>
+      </div>
+      <div class="service-item">
+        <div class="service-icon">🎨</div>
+        <div class="service-text">鈑金・塗装</div>
+      </div>
+    </div>
+    <div style="margin-top:14px;font-size:13px;color:#4a5568;text-align:center;">
+      ※ 自動車業界の分業体制を活かし、専門パートナーと連携してワンストップで対応します
+    </div>
+    <div class="slide-num slide-num-light">7 / 10</div>
+  </div>
+
+  <!-- ===== SLIDE 8: 過去の実績 ===== -->
+  <div class="slide slide-standard">
+    <div class="brand-bar"></div>
+    <div class="slide-heading">過去の実績・強み</div>
+    <div class="achievement-grid">
+      <div class="achievement-card">
+        <div class="achievement-number">24<span style="font-size:18px;">年</span></div>
+        <div class="achievement-label">独立開業からの実績年数<br>（2001年〜）</div>
+      </div>
+      <div class="achievement-card">
+        <div class="achievement-number">30<span style="font-size:18px;">年以上</span></div>
+        <div class="achievement-label">自動車業界での<br>キャリア年数</div>
+      </div>
+      <div class="achievement-card">
+        <div class="achievement-number">地域<span style="font-size:18px;">密着</span></div>
+        <div class="achievement-label">東大阪を拠点に<br>口コミ・紹介で拡大</div>
+      </div>
+    </div>
+    <div class="highlight-box">
+      <div style="font-size:13px;font-weight:700;color:#3182ce;margin-bottom:6px;">お客様の声</div>
+      <div class="highlight-box-text">
+        「フィルムを貼ってから夏の車内が全然違う！快適になりました」<br>
+        「丁寧な施工で仕上がりに大満足。友人にも紹介しました」<br>
+        「相談しやすく、予算に合わせて提案してくれるので安心して任せられます」
+      </div>
+    </div>
+    <div class="slide-num slide-num-light">8 / 10</div>
+  </div>
+
+  <!-- ===== SLIDE 9: 社会貢献・難病サポート ===== -->
+  <div class="slide slide-dark">
+    <div class="slide-heading-white">社会への取り組み</div>
+    <div class="card-dark" style="margin-bottom:16px;">
+      <div class="card-title-white">🎗️ 色素性乾皮症（指定難病159）の方々へのサポート</div>
+      <div class="card-body-white">
+        色素性乾皮症は紫外線の影響を強く受け、日常生活に大きな支障をきたす難病です。<br><br>
+        カーフィルムによる紫外線カットは、こうした方々の外出負担を大幅に軽減できます。
+        費用面での負担を軽減する方法もご案内できますので、お困りの方はご相談ください。
+      </div>
+    </div>
+    <div class="card-dark">
+      <div class="card-title-white">🌐 地域コミュニティへの貢献</div>
+      <div class="card-body-white">
+        守口門真青年会議所での活動、BNIシャングリラチャプターへの参加を通じて、
+        地域の経営者・事業者との連携を深めています。<br>
+        お客様のお困りごとに合わせ、最適な専門家をご紹介することも可能です。
+      </div>
+    </div>
+    <div class="slide-num slide-num-dark">9 / 10</div>
+  </div>
+
+  <!-- ===== SLIDE 10: まとめ・クロージング ===== -->
+  <div class="slide slide-closing">
+    <div class="closing-main">快適なカーライフを<br>お手伝いします♪</div>
+    <div class="closing-sub">車のことで困ったら、まずご相談ください。</div>
+    <div class="contact-box">
+      <div class="contact-text">
+        <strong style="color:#90cdf4;">Honest【オネスト】</strong><br>
+        代表　酒井 修二<br>
+        📍 東大阪市<br>
+        🚗 カーフィルム・コーティング専門店<br>
+        🤝 BNI シャングリラチャプター
+      </div>
+    </div>
+    <div style="margin-top:24px;font-size:14px;color:#718096;">ご清聴ありがとうございました。</div>
+    <div class="slide-num slide-num-dark">10 / 10</div>
+  </div>
+
+</div><!-- .slide-wrapper -->
+
+<script>
+  let current = 0;
+  const slides = document.querySelectorAll('.slide');
+  const total = slides.length;
+
+  function changeSlide(dir) {
+    slides[current].classList.remove('active');
+    current = Math.max(0, Math.min(total - 1, current + dir));
+    slides[current].classList.add('active');
+    document.getElementById('slide-counter').textContent = `${current + 1} / ${total}`;
+    document.getElementById('btn-prev').disabled = current === 0;
+    document.getElementById('btn-next').disabled = current === total - 1;
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') changeSlide(1);
+    if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   changeSlide(-1);
+  });
+</script>
+</body>
+</html>
