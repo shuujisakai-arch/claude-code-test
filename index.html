@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Honest（オネスト）｜カーフィルム・コーティング専門｜東大阪</title>
+<meta name="description" content="東大阪のカーフィルム・ペイントプロテクションフィルム・コーティング専門店 Honest（オネスト）。一台ずつ手仕事で仕上げます。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Space+Grotesk:wght@400;500;700&family=Zen+Kaku+Gothic+New:wght@500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0B1220;
+    --ink-2:#111A2B;
+    --panel:#16203355;
+    --line:#26324C;
+    --gold:#C9A24B;
+    --gold-soft:#E6CE92;
+    --mist:#9CA8BC;
+    --paper:#EDEBE3;
+    --rad:14px;
+    --max:1100px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--ink);
+    color:#E9ECF2;
+    font-family:"Noto Sans JP",sans-serif;
+    line-height:1.8;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  .wrap{max-width:var(--max);margin:0 auto;padding:0 24px}
+  a{color:inherit;text-decoration:none}
+  .num,.en{font-family:"Space Grotesk",sans-serif}
+  h1,h2,h3{font-family:"Zen Kaku Gothic New",sans-serif;line-height:1.35}
+
+  /* ---- header ---- */
+  header{
+    position:fixed;top:0;left:0;right:0;z-index:50;
+    backdrop-filter:blur(10px);
+    background:linear-gradient(180deg,#0B1220ee,#0B122000);
+    transition:background .3s;
+  }
+  .nav{display:flex;align-items:center;justify-content:space-between;height:68px}
+  .logo{display:flex;align-items:baseline;gap:9px;font-family:"Space Grotesk",sans-serif;font-weight:700;letter-spacing:.18em;font-size:1.15rem}
+  .logo b{color:var(--gold)}
+  .logo span{font-family:"Zen Kaku Gothic New",sans-serif;font-weight:500;font-size:.7rem;letter-spacing:.3em;color:var(--mist)}
+  .navlinks{display:flex;gap:30px;font-size:.85rem;color:var(--mist)}
+  .navlinks a{transition:color .2s}
+  .navlinks a:hover{color:var(--gold-soft)}
+  .nav-cta{border:1px solid var(--line);border-radius:100px;padding:8px 18px;font-size:.82rem;color:#E9ECF2;transition:.2s}
+  .nav-cta:hover{border-color:var(--gold);color:var(--gold-soft)}
+  @media(max-width:760px){.navlinks{display:none}}
+
+  /* ---- hero ---- */
+  .hero{position:relative;min-height:100vh;display:flex;align-items:center;padding-top:68px}
+  .scene{position:absolute;inset:0;overflow:hidden;z-index:0}
+  /* 夕暮れの街並みをCSSで描画（ガラス越しの風景） */
+  .sky{position:absolute;inset:0;
+    background:
+      radial-gradient(120% 90% at 72% 38%, #6B4A2Aaa 0%, #2A2236 40%, #0B1220 78%),
+      linear-gradient(180deg,#1A2438 0%, #0B1220 70%);}
+  .sun{position:absolute;top:32%;left:70%;width:160px;height:160px;border-radius:50%;
+    background:radial-gradient(circle, #F0C879 0%, #C9883F 45%, transparent 70%);
+    filter:blur(2px);opacity:.85}
+  .ridge{position:absolute;left:0;right:0;height:42%;bottom:0;
+    background:linear-gradient(180deg,#0D1422 0%, #070B14 100%);
+    clip-path:polygon(0 38%,12% 30%,24% 40%,38% 26%,52% 38%,66% 24%,80% 36%,92% 28%,100% 38%,100% 100%,0 100%)}
+  .road{position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:70%;height:30%;
+    background:linear-gradient(180deg,#11192B 0%, #0B1220 100%);
+    clip-path:polygon(42% 0,58% 0,100% 100%,0 100%)}
+  .road::after{content:"";position:absolute;left:50%;top:0;bottom:0;width:3px;transform:translateX(-50%);
+    background:repeating-linear-gradient(180deg,#C9A24B55 0 18px, transparent 18px 46px)}
+  /* ティント（透過率）オーバーレイ */
+  .tint{position:absolute;inset:0;background:#05080F;z-index:1;transition:opacity .12s linear;pointer-events:none}
+  .glass-glow{position:absolute;inset:0;z-index:1;pointer-events:none;
+    background:linear-gradient(115deg, #ffffff10 0%, transparent 22%, transparent 78%, #ffffff08 100%)}
+
+  .hero-inner{position:relative;z-index:2;width:100%}
+  .eyebrow{font-family:"Space Grotesk",sans-serif;letter-spacing:.34em;font-size:.72rem;color:var(--gold);text-transform:uppercase;margin-bottom:22px}
+  .hero h1{font-size:clamp(2.4rem,7vw,4.6rem);font-weight:900;letter-spacing:.01em}
+  .hero h1 .light{color:var(--gold-soft);font-weight:500}
+  .lead{margin-top:22px;max-width:30em;color:#D6DBE6;font-size:clamp(1rem,2.2vw,1.15rem)}
+  .hero-cta{margin-top:34px;display:flex;gap:14px;flex-wrap:wrap}
+  .btn{display:inline-flex;align-items:center;gap:9px;border-radius:100px;padding:13px 26px;font-size:.92rem;font-weight:700;transition:.22s}
+  .btn-gold{background:var(--gold);color:#1A1305}
+  .btn-gold:hover{background:var(--gold-soft);transform:translateY(-1px)}
+  .btn-ghost{border:1px solid var(--line);color:#E9ECF2}
+  .btn-ghost:hover{border-color:var(--gold)}
+
+  /* tint control */
+  .tint-control{position:absolute;z-index:3;bottom:34px;left:50%;transform:translateX(-50%);
+    width:min(440px,86vw);background:#0B1220cc;backdrop-filter:blur(8px);
+    border:1px solid var(--line);border-radius:100px;padding:12px 20px;display:flex;align-items:center;gap:16px}
+  .tint-control .lbl{font-size:.72rem;color:var(--mist);white-space:nowrap;font-family:"Zen Kaku Gothic New",sans-serif}
+  .tint-control .val{font-family:"Space Grotesk",sans-serif;font-weight:700;color:var(--gold);font-size:1.05rem;min-width:62px;text-align:right}
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:4px;border-radius:4px;
+    background:linear-gradient(90deg,var(--gold) 0%, var(--gold) var(--p,30%), #2A3654 var(--p,30%));outline:none}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;
+    background:var(--gold-soft);border:3px solid #0B1220;cursor:pointer;box-shadow:0 0 0 1px var(--gold)}
+  input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;background:var(--gold-soft);border:3px solid #0B1220;cursor:pointer}
+  input[type=range]:focus-visible{outline:2px solid var(--gold-soft);outline-offset:6px;border-radius:8px}
+  @media(max-width:520px){.tint-control{flex-wrap:wrap;border-radius:18px;justify-content:center;text-align:center}}
+
+  /* ---- section frame ---- */
+  section{padding:96px 0;position:relative}
+  .sec-head{display:flex;align-items:baseline;gap:18px;margin-bottom:48px;flex-wrap:wrap}
+  .sec-no{font-family:"Space Grotesk",sans-serif;color:var(--gold);font-size:.82rem;letter-spacing:.2em}
+  .sec-head h2{font-size:clamp(1.5rem,4vw,2.1rem);font-weight:700}
+  .sec-head .sub{color:var(--mist);font-size:.86rem;margin-left:auto}
+  .rule{height:1px;background:linear-gradient(90deg,var(--line),transparent);margin-bottom:48px}
+
+  /* ---- services ---- */
+  .svc{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--rad);overflow:hidden}
+  .svc-card{background:var(--ink);padding:36px 30px;transition:background .25s}
+  .svc-card:hover{background:var(--ink-2)}
+  .svc-card .ic{font-family:"Space Grotesk",sans-serif;color:var(--gold);font-size:.78rem;letter-spacing:.18em;margin-bottom:14px}
+  .svc-card h3{font-size:1.25rem;margin-bottom:10px}
+  .svc-card p{color:var(--mist);font-size:.9rem}
+  @media(max-width:680px){.svc{grid-template-columns:1fr}}
+
+  /* ---- about ---- */
+  .about{display:grid;grid-template-columns:1.2fr 1fr;gap:54px;align-items:center}
+  .about p{color:#D2D8E4;margin-bottom:18px}
+  .about .sign{font-family:"Zen Kaku Gothic New",sans-serif;color:var(--gold-soft);font-weight:500;margin-top:26px}
+  .about-card{border:1px solid var(--line);border-radius:var(--rad);padding:30px;background:linear-gradient(160deg,#16203322,#0B1220)}
+  .about-card .row{display:flex;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--line);font-size:.9rem}
+  .about-card .row:last-child{border:none}
+  .about-card .row span:first-child{color:var(--mist)}
+  @media(max-width:760px){.about{grid-template-columns:1fr;gap:32px}}
+
+  /* ---- stats ---- */
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;text-align:center}
+  .stat .n{font-family:"Space Grotesk",sans-serif;font-weight:700;font-size:clamp(2rem,6vw,3rem);color:var(--gold)}
+  .stat .l{color:var(--mist);font-size:.82rem;margin-top:4px}
+  @media(max-width:600px){.stats{grid-template-columns:1fr;gap:30px}}
+
+  /* ---- contact ---- */
+  .contact{background:linear-gradient(180deg,#0B1220,#0E1728)}
+  .contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:48px}
+  .info .row{padding:16px 0;border-bottom:1px solid var(--line)}
+  .info .k{font-size:.72rem;letter-spacing:.16em;color:var(--gold);font-family:"Space Grotesk",sans-serif;margin-bottom:5px}
+  .info .v{font-size:1rem}
+  .info .note{color:var(--mist);font-size:.78rem}
+  .gmb{border:1px solid var(--line);border-radius:var(--rad);padding:30px;background:#0B1220;display:flex;flex-direction:column;justify-content:center;gap:16px}
+  .gmb h3{font-size:1.1rem}
+  .gmb p{color:var(--mist);font-size:.86rem}
+  @media(max-width:760px){.contact-grid{grid-template-columns:1fr;gap:30px}}
+
+  footer{padding:40px 0;border-top:1px solid var(--line);text-align:center;color:var(--mist);font-size:.78rem}
+  footer .logo{justify-content:center;margin-bottom:10px}
+
+  .edit{color:var(--gold-soft);background:#C9A24B1a;border:1px dashed #C9A24B55;border-radius:6px;padding:1px 7px;font-size:.78em}
+
+  /* reveal */
+  .reveal{opacity:0;transform:translateY(22px);transition:opacity .7s ease,transform .7s ease}
+  .reveal.in{opacity:1;transform:none}
+  @media(prefers-reduced-motion:reduce){
+    .reveal{opacity:1;transform:none;transition:none}
+    html{scroll-behavior:auto}
+    .tint{transition:none}
+  }
+</style>
+</head>
+<body>
+
+<header id="top">
+  <div class="wrap nav">
+    <a class="logo" href="#top">HONEST <b>·</b> <span>オネスト</span></a>
+    <nav class="navlinks">
+      <a href="#service">事業内容</a>
+      <a href="#about">オネストについて</a>
+      <a href="#works">実績</a>
+      <a href="#contact">店舗情報</a>
+    </nav>
+    <a class="nav-cta" href="#contact">お問い合わせ</a>
+  </div>
+</header>
+
+<!-- ============ HERO ============ -->
+<section class="hero">
+  <div class="scene">
+    <div class="sky"></div>
+    <div class="sun"></div>
+    <div class="ridge"></div>
+    <div class="road"></div>
+    <div class="tint" id="tint" style="opacity:.3"></div>
+    <div class="glass-glow"></div>
+  </div>
+
+  <div class="wrap hero-inner">
+    <p class="eyebrow">Car Film &amp; Coating ・ 東大阪</p>
+    <h1>濃さも、仕上がりも。<br><span class="light">一台ずつ、正直に。</span></h1>
+    <p class="lead">カーフィルム・ペイントプロテクションフィルム・コーティング専門。下のスライダーを動かすと、ガラスの濃さ（可視光線透過率）の見え方が変わります。</p>
+    <div class="hero-cta">
+      <a class="btn btn-gold" href="#contact">施工の相談をする →</a>
+      <a class="btn btn-ghost" href="#service">事業内容を見る</a>
+    </div>
+  </div>
+
+  <div class="tint-control">
+    <span class="lbl">フィルムの濃さ</span>
+    <input type="range" id="tintRange" min="5" max="70" value="20" step="1" aria-label="可視光線透過率">
+    <span class="val"><span id="tintVal">20</span>%</span>
+  </div>
+</section>
+
+<!-- ============ SERVICE ============ -->
+<section id="service">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="sec-no">01</span>
+      <h2>事業内容</h2>
+      <span class="sub">Window Film / PPF / Coating / Detailing</span>
+    </div>
+    <div class="svc reveal">
+      <div class="svc-card">
+        <div class="ic">FILM</div>
+        <h3>カーフィルム施工</h3>
+        <p>断熱・遮熱・UVカット・プライバシー保護。車種とご希望の濃さに合わせて、気泡やヨレのない仕上がりで施工します。</p>
+      </div>
+      <div class="svc-card">
+        <div class="ic">PPF</div>
+        <h3>ペイントプロテクションフィルム</h3>
+        <p>飛び石や擦り傷からボディ・ヘッドライトを守る保護フィルム。塗装を活かしたまま透明な膜で守ります。</p>
+      </div>
+      <div class="svc-card">
+        <div class="ic">COATING</div>
+        <h3>ボディコーティング</h3>
+        <p>艶と撥水を長く保つコーティング。日々の手入れを楽にし、愛車の状態を維持します。</p>
+      </div>
+      <div class="svc-card">
+        <div class="ic">DETAIL</div>
+        <h3>カーディテーリング</h3>
+        <p>内外装のクリーニング・磨き。新車のような状態を目指して、細部まで手仕事で整えます。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ABOUT ============ -->
+<section id="about">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="sec-no">02</span>
+      <h2>オネストについて</h2>
+      <span class="sub">About Honest</span>
+    </div>
+    <div class="about">
+      <div class="reveal">
+        <p>「Honest（オネスト）＝正直」。屋号のとおり、できること・できないこと、料金、仕上がりの見込みを正直にお伝えすることを大切にしています。</p>
+        <p>東大阪を拠点に、カーフィルムとコーティングを専門に。営業も施工も代表自身が担当し、一台ずつ手仕事で向き合います。だからこそ、車の状態やご要望に合わせた細かな提案ができます。</p>
+        <p class="sign">代表　酒井 修二</p>
+      </div>
+      <div class="about-card reveal">
+        <div class="row"><span>屋号</span><span>Honest（オネスト）</span></div>
+        <div class="row"><span>拠点</span><span>大阪府東大阪市</span></div>
+        <div class="row"><span>専門</span><span>カーフィルム／コーティング</span></div>
+        <div class="row"><span>対応</span><span>普通車・ワンボックス 他</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ WORKS / STATS ============ -->
+<section id="works">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="sec-no">03</span>
+      <h2>実績・選ばれる理由</h2>
+      <span class="sub">Why Honest</span>
+    </div>
+    <div class="stats reveal">
+      <div class="stat"><div class="n"><span class="edit">○○</span>台+</div><div class="l">これまでの施工実績</div></div>
+      <div class="stat"><div class="n">1台</div><div class="l">代表が最初から最後まで担当</div></div>
+      <div class="stat"><div class="n"><span class="edit">○○</span>年</div><div class="l">この道での経験年数</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CONTACT ============ -->
+<section id="contact" class="contact">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="sec-no">04</span>
+      <h2>店舗情報・お問い合わせ</h2>
+      <span class="sub">Contact</span>
+    </div>
+    <div class="contact-grid">
+      <div class="info reveal">
+        <div class="row"><div class="k">SHOP</div><div class="v">Honest（オネスト）</div></div>
+        <div class="row"><div class="k">ADDRESS</div><div class="v">大阪府東大阪市 <span class="edit">○○○○（要記入）</span></div></div>
+        <div class="row"><div class="k">TEL</div><div class="v"><span class="edit">000-0000-0000（要記入）</span></div></div>
+        <div class="row"><div class="k">HOURS</div><div class="v"><span class="edit">○:○○〜○:○○（要記入）</span><br><span class="note">※出張施工メインの場合は要相談 等</span></div></div>
+      </div>
+      <div class="gmb reveal">
+        <h3>Googleで「東大阪 カーフィルム」</h3>
+        <p>地図・営業時間・最新の施工事例・口コミは Googleビジネスプロフィールで随時更新しています。下のボタンから店舗ページへ。</p>
+        <a class="btn btn-gold" href="#" id="gmbLink">Googleで店舗を見る →</a>
+        <p class="note"><span class="edit">↑ ビジネスプロフィールのURLをここに設定</span></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <a class="logo" href="#top">HONEST <b>·</b> <span>オネスト</span></a>
+    <div>カーフィルム・コーティング専門 ／ 東大阪</div>
+    <div style="margin-top:8px">© <span class="num" id="yr"></span> Honest. All rights reserved.</div>
+  </div>
+</footer>
+
+<script>
+  // --- tint slider ---
+  var range = document.getElementById('tintRange');
+  var tint  = document.getElementById('tint');
+  var valEl = document.getElementById('tintVal');
+  function applyTint(){
+    var v = +range.value;           // 5(濃い) 〜 70(薄い)
+    valEl.textContent = v;
+    // 透過率が低い(数字が小さい)ほど濃い＝オーバーレイ濃く
+    var opacity = (70 - v) / 70 * 0.82 + 0.05;
+    tint.style.opacity = opacity.toFixed(3);
+    var p = (v - 5) / (70 - 5) * 100;
+    range.style.setProperty('--p', p + '%');
+  }
+  range.addEventListener('input', applyTint);
+  applyTint();
+
+  // --- year ---
+  document.getElementById('yr').textContent = new Date().getFullYear();
+
+  // --- scroll reveal ---
+  var io = new IntersectionObserver(function(es){
+    es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); }});
+  },{threshold:.16});
+  document.querySelectorAll('.reveal').forEach(function(el){ io.observe(el); });
+
+  // --- header bg on scroll ---
+  var hd = document.querySelector('header');
+  window.addEventListener('scroll', function(){
+    hd.style.background = window.scrollY > 40
+      ? 'linear-gradient(180deg,#0B1220f2,#0B1220e0)'
+      : 'linear-gradient(180deg,#0B1220ee,#0B122000)';
+  });
+</script>
+</body>
+</html>
